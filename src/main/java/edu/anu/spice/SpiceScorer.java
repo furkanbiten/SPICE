@@ -92,11 +92,11 @@ public class SpiceScorer {
 			for (Object o : input) {
 			    JSONObject item = (JSONObject) o;
 			    image_ids.add(item.get("image_id"));
-			    testCaptions.add((String) item.get("test"));
 			    JSONArray refs = (JSONArray) item.get("refs");
 			    refChunks.add(refs.size());
 			    for (Object ref : refs){
 			    	refCaptions.add((String) ref);
+			        testCaptions.add((String) ref);
 			    }
 			}
 		} catch (ParseException e) {
@@ -111,9 +111,23 @@ public class SpiceScorer {
 		List<SceneGraph> testSgs = parser.parseCaptions(testCaptions);
 		
 		this.stats = new SpiceStats(filters, args.detailed);
+		FileWriter myWriter = new FileWriter("spice_pairwise.csv");
+
 		for (int i=0; i<testSgs.size(); ++i) {
-			this.stats.score(image_ids.get(i), testSgs.get(i), refSgs.get(i), args.synsets);
+		  for (int j=0; j<refSgs.size(); ++j) {
+			//create new stats for each pair of refSgs
+		        this.stats = new SpiceStats(filters, args.detailed);
+			this.stats.score(image_ids.get(j), testSgs.get(i), refSgs.get(j), args.synsets);
+			//print stats for this pair of refSgs
+			System.out.println(this.stats.toString());
+			//write to file
+			myWriter.write(this.stats.macroAverage("All").f + ",");
+		  }
+		  myWriter.write("\n");
 		}
+
+		myWriter.close();
+
 		if (!args.silent){
 			System.out.println(this.stats.toString());
 		}

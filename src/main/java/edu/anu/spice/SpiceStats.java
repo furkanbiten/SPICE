@@ -74,7 +74,7 @@ public class SpiceStats implements JSONAware {
 	    this.scores.add(score);
 	}
 	
-	private Evaluation macroAverage(String filter){
+	public Evaluation macroAverage(String filter){
 		Evaluation result = new Evaluation();
 		int imageCount = 0;
 		for (Map<String, Evaluation> score: this.scores){
